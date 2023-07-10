@@ -75,6 +75,7 @@ sudo apt update
 sudo apt upgrade
 sync
 sudo rm /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-power-manager.xml
+sudo apt install tasksel
 sudo tasksel --list-tasks
 For lxde:  sudo tasksel install lxde-desktop  ( then sudo vi /etc/lightdm/lightdm.conf delete autologin-user=linaro )
 For xfce4: sudo tasksel install xfce-desktop  ( then sudo apt remove --purge openbox )
@@ -86,10 +87,13 @@ Disable power saving and screen saver.
 glxinfo | grep OpenGL
 date
 
-sudo apt install speedtest-cli build-essential libjpeg-dev libpng-dev libpng16-16 pkg-config libx11-dev python3-pip python3-setuptools chromium chromium-sandbox
-speedtest-cli
+sudo apt install speedtest-cli libjpeg-dev libpng-dev libpng16-16 pkg-config libx11-dev python3-pip python3-setuptools chromium chromium-sandbox ffmpeg mpv
 
-git clone https://github.com/glmark2/glmark2.git -b release-2020.04
+speedtest-cli
+or if not working:
+speedtest-cli --secure
+
+git clone https://github.com/glmark2/glmark2.git -b 2021.02
 cd glmark2
 ./waf configure --with-flavors=x11-glesv2
 ./waf
@@ -98,6 +102,6 @@ glmark2-es2
 
 Chromium -> youtube.com -> search YmDNhi07_Ho
 
-pip3 install -U yt-dlp
+pip3 install --no-deps -U yt-dlp
 ~/.local/bin/yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' hyUhEjtlDLA -o avemaria.mp4
-vlc avemaria.mp4
+mpv avemaria.mp4
