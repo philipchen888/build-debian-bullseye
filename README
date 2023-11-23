@@ -6,7 +6,7 @@ tinker ( ASUS TinkerBoard )
 Steps to build Debian Bullseye sdcard image ( lxde, xfce4, kde, gnome ):
 
 1. git clone https://github.com/philipchen888/build-debian-bullseye.git
-   sudo apt-get install build-essential git libssl-dev nmap net-tools libncurses5-dev libncursesw5-dev dnsutils vsftpd ftp binfmt-support qemu-user-static scons libncurses5-dev libncursesw5-dev libdbus-glib-1-dev libbluetooth-dev python-dev python-setuptools python3-dev python3-pip python3-setuptools libcurl4-openssl-dev gettext dbus-x11 chrpath diffstat gawk texinfo curl flex bison device-tree-compiler python swig
+   sudo apt-get install build-essential git libssl-dev nmap net-tools libncurses5-dev libncursesw5-dev dnsutils vsftpd ftp binfmt-support qemu-user-static scons libncurses5-dev libncursesw5-dev libdbus-glib-1-dev libbluetooth-dev python-dev python-setuptools python3-dev python3-pip python3-setuptools libcurl4-openssl-dev gettext dbus-x11 chrpath diffstat gawk texinfo curl flex bison device-tree-compiler python swig libmpc-dev
 
 2. Install cross compiler and live-build:
    wget https://releases.linaro.org/components/toolchain/binaries/latest-7/aarch64-linux-gnu/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz
@@ -20,7 +20,7 @@ Steps to build Debian Bullseye sdcard image ( lxde, xfce4, kde, gnome ):
    sudo make install
 
 3. cd ~/build-debian-bullseye/rpi4b
-   git clone https://github.com/raspberrypi/linux --depth=1 -b rpi-5.4.y
+   git clone https://github.com/raspberrypi/linux --depth=1 -b rpi-6.1.y
    cd linux; mkdir tmp; cd tmp; mkdir lib;
    cd ../../; mkdir out;
 
@@ -33,9 +33,14 @@ Steps to build Debian Bullseye sdcard image ( lxde, xfce4, kde, gnome ):
 4. cd ~/build-debian-bullseye/radxa
    sudo apt-get install libgnutls28-dev
    git clone https://github.com/u-boot/u-boot.git -b u-boot-2023.07.y
-   wget https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.15.tar.xz
-   tar -xJf linux-5.15.tar.xz
-   cd linux-5.15; mkdir tmp; cd tmp; mkdir lib;
+   git clone https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git --depth=1
+   cp rk3399-rock-pi-4b.dts ./linux/arch/arm64/boot/dts/rockchip/
+   cp rk3399-rock-pi-4.dtsi ./linux/arch/arm64/boot/dts/rockchip/
+   delete rk3399-rock-pi-4b-plus.dtb in ./linux/arch/arm64/boot/dts/rockchip/Makefile
+   delete rk3399-rock-pi-4c.dtb in ./linux/arch/arm64/boot/dts/rockchip/Makefile
+   \rm ./linux/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4b-plus.dts
+   \rm ./linux/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4c.dts
+   cd linux; mkdir tmp; cd tmp; mkdir lib;
    cd ../../; mkdir out;
 
    make all
@@ -46,9 +51,10 @@ Steps to build Debian Bullseye sdcard image ( lxde, xfce4, kde, gnome ):
 
 5. cd ~/build-debian-bullseye/tinker
    git clone https://github.com/TinkerBoard/debian_u-boot.git --depth=1 -b release
-   wget https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.10.tar.xz
-   tar -xJf linux-5.10.tar.xz
-   cd linux-5.10; mkdir tmp; cd tmp; mkdir lib;
+   git clone https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git --depth=1
+   cat multi_v7_defconfig >> ./linux/arch/arm/configs/multi_v7_defconfig
+   cp rk3288-tinker.dtsi ./linux/arch/arm/boot/dts/rockchip/
+   cd linux; mkdir tmp; cd tmp; mkdir lib;
    cd ../../; mkdir out;
 
    make all
@@ -57,9 +63,6 @@ Steps to build Debian Bullseye sdcard image ( lxde, xfce4, kde, gnome ):
 
    sudo dd if=./out/sdcard.img of=/dev/sda bs=4096 conv=notrunc,fsync
 
-Wifi drivers of radxa and tinker are not supported in linux mainline kernel.
-Plugin ethernet cable to radxa and tinker.
-Plugin USB headphone to tinker and rpi4b.
 Plugin sdcard to SBC
 mouse right click on the screen, select terminal emulator.
 Login:
@@ -67,15 +70,13 @@ username: linaro
 password: linaro
 uname -a
 lsb_release -a
-Setup wifi for rpi4b
-sudo ifconfig
 nmcli dev wifi connect "SSID" password "PASSWD"
 sudo dpkg-reconfigure tzdata
 sudo dpkg-reconfigure locales
+date
 sudo apt update
 sudo apt upgrade
 sync
-sudo rm /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-power-manager.xml
 sudo apt install tasksel
 sudo tasksel --list-tasks
 For lxde:  sudo tasksel install lxde-desktop  ( then sudo vi /etc/lightdm/lightdm.conf delete autologin-user=linaro )
@@ -83,7 +84,8 @@ For xfce4: sudo tasksel install xfce-desktop  ( then sudo apt remove --purge ope
 For kde:   sudo tasksel install kde-desktop   ( then sudo apt remove --purge openbox )
 For gnome: sudo tasksel install gnome-desktop ( then sudo apt remove --purge openbox )
 sync
-sudo reboot
+sudo shutdown -h now
+power off, power on
 Disable power saving and screen saver.
 glxinfo | grep OpenGL
 date
@@ -101,8 +103,18 @@ cd glmark2
 sudo ./waf install
 glmark2-es2
 
+Install raspi-config in rpi4b:
+wget https://archive.raspberrypi.org/debian/pool/main/r/raspi-config/raspi-config_20211019_all.deb
+sudo apt -y install libnewt0.52 whiptail parted triggerhappy lua5.1 alsa-utils
+sudo apt install -fy
+sudo dpkg -i ./raspi-config_20211019_all.deb
+sudo raspi-config  ( set default hdmi sound, System Options -> Audio -> HDMI )
+
 Chromium -> youtube.com -> search YmDNhi07_Ho
 
 pip3 install --no-deps -U yt-dlp
 ~/.local/bin/yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' hyUhEjtlDLA -o avemaria.mp4
 mpv avemaria.mp4
+
+hcitool dev
+hciconfig -a
