@@ -36,8 +36,10 @@ Steps to build Debian Bullseye sdcard image ( lxde, xfce4, kde, gnome ):
    git clone https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git --depth=1
    cp rk3399-rock-pi-4b.dts ./linux/arch/arm64/boot/dts/rockchip/
    cp rk3399-rock-pi-4.dtsi ./linux/arch/arm64/boot/dts/rockchip/
+   delete rk3399-rock-pi-4a-plus.dtb in ./linux/arch/arm64/boot/dts/rockchip/Makefile
    delete rk3399-rock-pi-4b-plus.dtb in ./linux/arch/arm64/boot/dts/rockchip/Makefile
    delete rk3399-rock-pi-4c.dtb in ./linux/arch/arm64/boot/dts/rockchip/Makefile
+   \rm ./linux/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4a-plus.dts
    \rm ./linux/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4b-plus.dts
    \rm ./linux/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4c.dts
    cd linux; mkdir tmp; cd tmp; mkdir lib;
@@ -93,8 +95,6 @@ date
 sudo apt install speedtest-cli libjpeg-dev libpng-dev libpng16-16 pkg-config libx11-dev python3-pip python3-setuptools chromium chromium-sandbox ffmpeg mpv
 
 speedtest-cli
-or if not working:
-speedtest-cli --secure
 
 git clone https://github.com/glmark2/glmark2.git -b 2021.02
 cd glmark2
@@ -103,18 +103,12 @@ cd glmark2
 sudo ./waf install
 glmark2-es2
 
-Install raspi-config in rpi4b:
-wget https://archive.raspberrypi.org/debian/pool/main/r/raspi-config/raspi-config_20211019_all.deb
-sudo apt -y install libnewt0.52 whiptail parted triggerhappy lua5.1 alsa-utils
-sudo apt install -fy
-sudo dpkg -i ./raspi-config_20211019_all.deb
-sudo raspi-config  ( set default hdmi sound, System Options -> Audio -> HDMI )
-
 Chromium -> youtube.com -> search YmDNhi07_Ho
 
 pip3 install --no-deps -U yt-dlp
 ~/.local/bin/yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' hyUhEjtlDLA -o avemaria.mp4
 mpv avemaria.mp4
 
+hciconfig hci0
 hcitool dev
 hciconfig -a
